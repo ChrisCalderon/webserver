@@ -82,7 +82,7 @@ def check_routes(routes, serverdir):
     """Make sure routes are valid."""
     for route in routes:
         file_ = os.path.join(serverdir,
-                             routes[route])
+                             routes[route].lstrip('/'))
         if not os.path.isfile(file_):
             print('no file for route rule:', route+','+file_)
             sys.exit(1)
