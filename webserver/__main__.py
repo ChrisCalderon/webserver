@@ -15,8 +15,8 @@ def routerule(r):
         if len(parts) != 2:
             raise ArgumentTypeError('Invalid route spec: {}'.format(spec))
         route, file_ = parts
-        if route in result:
-            first_spec = route + ',' + result[route]
+        if route in routes:
+            first_spec = route + ',' + routes[route]
             error_msg = 'Repeated route: {!r} {!r}'
             error_msg = error_msg.format(first_spec, spec)
             raise ArgumentTypeError(error_msg)
