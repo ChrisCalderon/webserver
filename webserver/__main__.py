@@ -104,7 +104,7 @@ def main():
                         args.routes)
 
     if os.getuid() == 0:
-        drop_privileges(args.users,
+        drop_privileges(args.user,
                         args.group)
 
     os.chdir(args.serverdir)
