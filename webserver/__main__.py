@@ -21,7 +21,7 @@ def routerule(r):
             error_msg = error_msg.format(first_spec, spec)
             raise ArgumentTypeError(error_msg)
         routes[route] = file_
-    return result
+    return routes
 
 
 def filepath(p):
