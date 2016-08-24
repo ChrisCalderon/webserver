@@ -117,7 +117,9 @@ def main():
     except KeyboardInterrupt:
         print('\rshutting down')
         httpd.shutdown()
+        httpd.join()
         httpsd.shutdown()
+        httpsd.join()
 
     sys.exit(0)
 
