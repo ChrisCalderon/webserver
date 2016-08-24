@@ -58,7 +58,7 @@ parser.add_argument('-c', '--cert', help='Path to certificate.', required=True, 
 parser.add_argument('-k', '--key', help='Path to key for TLS.', required=True, type=filepath)
 parser.add_argument('-r', '--routes', help='Routing rules: <route-i>:<file-j>,<route-i+1>:<file-j+1>', type=routerule, default={})
 parser.add_argument('-s', '--serverdir', help='Directory to start server in.', required=True, type=directory)
-parser.add_argument('-n', '--host-name', help='Domain name to use in Host header.', required=True)
+parser.add_argument('-n', '--hostname', help='Domain name to use in Host header.', required=True)
 # parser.add_argument('-r', '--root', help='Root directory for chroot.', required=True, type=directory)
 
 
@@ -101,7 +101,7 @@ def main():
     #     sys.exit(1)
 
     print('starting redirector')
-    httpd = redirector.make_redirector(args.host)
+    httpd = redirector.make_redirector(args.hostname)
     print('starting server')
     httpsd = server.make_server(args.cert, args.key, args.routes)
 
