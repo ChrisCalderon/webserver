@@ -11,6 +11,7 @@ class RedirectHandler(BaseHTTPRequestHandler):
         self.send_response(301)
         self.send_header('Location', new_location)
         self.send_header('Connection', 'close')
+        self.end_headers()
 
     do_HEAD = do_GET
     do_POST = do_GET
