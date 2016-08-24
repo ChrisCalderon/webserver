@@ -7,6 +7,7 @@ class RedirectHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         new_location = 'https://' + self.host + self.path
+        print('Redirecting HTTP request to', new_location)
         self.send_code(301)
         self.send_header('Location', new_location)
         self.send_header('Connection', 'close')
