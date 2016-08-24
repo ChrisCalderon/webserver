@@ -53,7 +53,7 @@ parser = ArgumentParser(description='A simple, threaded HTTPS server.',
 # parser.add_argument('-P', '--port', help='Port to bind to.', type=int, default=443)
 # parser.add_argument('-H', '--host', help='Host to bind to.', default='0.0.0.0')
 parser.add_argument('-u', '--user', help='User to switch to when dropping privileges.', default='webserver')
-# parser.add_argument('-g', '--group', help='Group to switch to when dropping privileges.', default='webserver')
+parser.add_argument('-g', '--group', help='Group to switch to when dropping privileges.', default='webserver')
 parser.add_argument('-c', '--cert', help='Path to certificate.', required=True, type=filepath)
 parser.add_argument('-k', '--key', help='Path to key for TLS.', required=True, type=filepath)
 parser.add_argument('-r', '--routes', help='Routing rules: <route-i>:<file-j>,<route-i+1>:<file-j+1>', type=routerule, default={})
