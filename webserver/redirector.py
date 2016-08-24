@@ -5,15 +5,14 @@ class RedirectHandler(BaseHTTPRequestHandler):
     """Just redirects to https."""
     host = None  # type: str
 
-    def __getattr__(self, item):
-        if item in ('do_GET', 'do_HEAD', 'do_POST'):
-            return self._redirect
-
-    def _redirect(self):
+    def do_GET(self):
         new_location = 'https://' + self.host + self.path
         self.send_code(301)
         self.send_header('Location', new_location)
         self.send_header('Connection', 'close')
+
+    do_HEAD = do_GET
+    do_POST = do_GET
 
 
 def make_redirector(host: str):
