@@ -1,16 +1,17 @@
-from http.server import HTTPServer, CGIHTTPRequestHandler
-from socketserver import ThreadingMixIn
+from .interruptable import InterruptableServer
+from http.server import CGIHTTPRequestHandler
 from ssl import wrap_socket
 from typing import Mapping
 
 
-class ThreadedHTTPSServer(ThreadingMixIn, HTTPServer):
+class ThreadedHTTPSServer(InterruptableServer):
     """An HTTPS server class which creates a thread for each client."""
+    default_address = ('0.0.0.0', 443)
 
     def __init__(self, certfile: str, keyfile: str, *args, **kwds):
         self.certfile = certfile
         self.keyfile = keyfile
-        super().__init__(*args, **kwds)
+        super().__init__(self.default_address, *args, **kwds)
 
     def server_bind(self):
         super().server_bind()
@@ -46,22 +47,10 @@ class PrettyURLRequestHandler(CGIHTTPRequestHandler):
         self._pretty(super().do_POST)
 
 
-def make_server(host: str,
-                port: int,
-                certificate: str,
+def make_server(certificate: str,
                 private_key: str,
                 routes: Mapping[str, str]) -> ThreadedHTTPSServer:
-    """Creates an HTTPS server.
 
-    Arguments:
-    host -- The IPv4 address or hostname to bind to.
-    port -- The integer port to bind to.
-    certificate -- The path to the certificate file.
-    private_key -- The path to the private_key file.
-    routes -- A mapping of pretty urls to file names.
-    """
     PrettyURLRequestHandler.routes = routes
-    return ThreadedHTTPSServer(certificate,
-                               private_key,
-                               (host, port),
+    return ThreadedHTTPSServer(certificate, private_key,
                                PrettyURLRequestHandler)

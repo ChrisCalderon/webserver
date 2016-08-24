@@ -1,18 +1,18 @@
-from webserver import make_server, make_redirector
 from argparse import ArgumentParser, ArgumentTypeError
-from multiprocessing import Process
 import pwd
 import grp
 import os
 import sys
+from . import redirector
+from . import server
 
 
 def routerule(r):
     """Parses route rules."""
-    route_specs = r.split(';')
+    route_specs = r.split(',')
     routes = {}
     for spec in route_specs:
-        parts = spec.split(',')
+        parts = spec.split(':')
         if len(parts) != 2:
             raise ArgumentTypeError('Invalid route spec: {}'.format(spec))
         route, file_ = parts
@@ -49,18 +49,20 @@ parser = ArgumentParser(description='A simple, threaded HTTPS server.',
                         prog='webserver',
                         epilog=epilog)
 
-parser.add_argument('-P', '--port', help='Port to bind to.', type=int, default=443)
-parser.add_argument('-H', '--host', help='Host to bind to.', default='0.0.0.0') 
+# may add these options later
+# parser.add_argument('-P', '--port', help='Port to bind to.', type=int, default=443)
+# parser.add_argument('-H', '--host', help='Host to bind to.', default='0.0.0.0')
 parser.add_argument('-u', '--user', help='User to switch to when dropping privileges.', default='webserver')
-parser.add_argument('-g', '--group', help='Group to switch to when dropping privileges.', default='webserver')
+# parser.add_argument('-g', '--group', help='Group to switch to when dropping privileges.', default='webserver')
 parser.add_argument('-c', '--cert', help='Path to certificate.', required=True, type=filepath)
 parser.add_argument('-k', '--key', help='Path to key for TLS.', required=True, type=filepath)
-parser.add_argument('-r', '--routes', help='Routing rules: <route-i>,<file-j>;<route-i+1>,<file-j+1>', type=routerule, default={})
+parser.add_argument('-r', '--routes', help='Routing rules: <route-i>:<file-j>,<route-i+1>:<file-j+1>', type=routerule, default={})
 parser.add_argument('-s', '--serverdir', help='Directory to start server in.', required=True, type=directory)
 parser.add_argument('-n', '--host-name', help='Domain name to use in Host header.', required=True)
 # parser.add_argument('-r', '--root', help='Root directory for chroot.', required=True, type=directory)
 
 
+# TODO: figure out how to chroot properly.
 # def drop_privileges_and_chroot(user, group, root):
 def drop_privileges(user, group):
     """Drops root privileges after creating server.
@@ -98,12 +100,10 @@ def main():
     #     print('--serverdir option must be a subdirectory of --root.')
     #     sys.exit(1)
 
+    print('starting redirector')
+    httpd = redirector.make_redirector(args.host)
     print('starting server')
-    httpd = make_server(args.host,
-                        args.port,
-                        args.cert,
-                        args.key,
-                        args.routes)
+    httpsd = server.make_server(args.cert, args.key, args.routes)
 
     if os.getuid() == 0:
         drop_privileges(args.user,
@@ -113,8 +113,11 @@ def main():
 
     try:
         httpd.serve_forever()
+        httpsd.serve_forever()
     except KeyboardInterrupt:
         print('\rshutting down')
+        httpd.shutdown()
+        httpsd.shutdown()
 
     sys.exit(0)
 

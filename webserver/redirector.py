@@ -1,12 +1,5 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from socketserver import ThreadingMixIn
-from multiprocessing import Process
-
-
-class ThreadedHTTPRedirector(ThreadingMixIn, HTTPServer):
-    """A threaded HTTP server that's only for redirection."""
-    pass
-
+from http.server import BaseHTTPRequestHandler
+from .interruptable import InterruptableServer
 
 class RedirectHandler(BaseHTTPRequestHandler):
     """Just redirects to https."""
@@ -23,19 +16,12 @@ class RedirectHandler(BaseHTTPRequestHandler):
         self.send_header('Connection', 'close')
 
 
-class Redirector(Process):
-    def __init__(self, host):
-        self.host = host
-
-    def run(self):
-        RedirectHandler.host = self.host
-        server = ThreadedHTTPRedirector(('0.0.0.0', 80),
-                                        RedirectHandler)
-
-
 def make_redirector(host: str):
-    Redirector.host = host
-    httpd = ThreadedHTTPRedirector(('0.0.0.0', 80),
-                                   Redirector)
+    """Starts an HTTP server which redirects to an HTTPS host.
 
+    Argument:
+    host -- the host to redirect to.
+    """
+    RedirectHandler.host = host
+    httpd = InterruptableServer(('0.0.0.0', 80), RedirectHandler)
     return httpd
