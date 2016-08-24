@@ -11,3 +11,6 @@ class InterruptableServer(ThreadingMixIn, HTTPServer):
     def serve_forever(self, poll_interval=0.5):
         self._server_thread = threading.Thread(target=super().serve_forever, args=(poll_interval,))
         self._server_thread.start()
+
+    def join(self):
+        self._server_thread.join()

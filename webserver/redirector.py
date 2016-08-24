@@ -6,7 +6,7 @@ class RedirectHandler(BaseHTTPRequestHandler):
     host = None  # type: str
 
     def __getattr__(self, item):
-        if item.startswith('do_'):
+        if item in ('do_GET', 'do_HEAD', 'do_POST'):
             return self._redirect
 
     def _redirect(self):
